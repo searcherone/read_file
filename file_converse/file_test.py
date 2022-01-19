@@ -1,5 +1,7 @@
-import filetotxt
 import time
+
+import filetotxt
+
 start_time = time.time()
 content = filetotxt.pdf2txt(r'D:\文档\书籍\电子书\已看完\test2222.pdf', r'C:\Users\94417\Desktop')
 end_time = time.time()

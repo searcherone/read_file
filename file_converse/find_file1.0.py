@@ -1,5 +1,5 @@
 """
-两个线程版本，一个盘一个线程，252秒
+单线程版本，380秒
 #environment:   python 3.7.6 + Windows
 #author:        lijingcan
 #time:          2021年10月27日15:00:00
@@ -9,12 +9,11 @@
 """
 # coding=utf-8
 import os
+import pathlib
 import re
 import time
+
 import psutil
-import pathlib
-from threading import Thread
-from queue import Queue
 
 """
 #print(os.popen("wmic volume get lable, name").read())
@@ -23,13 +22,11 @@ from queue import Queue
 """
 # 全局变量
 # 此处用来写入需要查找的文件后缀，例如'.doc', '.docx'
-search_file = ['.docx', '.doc', '.xlsx', '.xls', '.csv', 'pdf', '.ppt', '.pptx', '.7z', '.rar', '.zip',
-               '.txt']
-
+search_file = ['.docx', '.doc', '.xlsx', '.xls', '.csv', 'pdf', '.ppt', '.pptx', '.7z', '.rar', '.zip', '.txt']
+# result_file = 'c:/administrator/desktop/abc.txt'
 result_file = r'C:\Users\94417\Desktop\result.txt'                 # 此处写入输出文件的位置
-num_threads = 5
-in_queue = Queue()
 file_list = []
+disks = []  # 用来存放磁盘
 
 
 # 错误提示
@@ -48,17 +45,16 @@ def check():
 
 # 获取本地磁盘
 def find_disk():
-    disks = []  # 用来存放磁盘
     disk = str(psutil.disk_partitions())
     for j in re.finditer('device', disk):
         start = j.span()[1]+2
         end = j.span()[1] + 4
         disks.append(disk[start:end]+'\\')
-        in_queue.put(disk[start:end]+'\\')
+        # in_queue.put(disk[start:end]+'\\')
 
 
-def find_path(j, iq):
-    path = iq.get()
+def find_path(path):
+    # path = iq.get()
     # 遍历磁盘、找出文件
     for root, dirs, files in os.walk(path, topdown=True, onerror=error_waring()):
         for filename in files:
@@ -66,12 +62,7 @@ def find_path(j, iq):
             if extension in search_file:
                 file_path = os.path.join(root, filename)
                 file_list.append(file_path)
-                # fp = open(result_file, 'rb+')
-                print("Thread %d: %s" % (j, file_path))
-                # fp.write(file_path.encode(encoding='UTF-8', errors='strict'))
-                # fp.write(b'\n')
-                # fp.close()
-    iq.task_done()
+                print("文件路径: %s" % (file_path))
 
 
 # 主函数 ==》 从C盘开始寻找，依次遍历
@@ -81,15 +72,11 @@ if __name__ == '__main__':
     print('程序运行中...')
     check()
     find_disk()
-    for i in range(num_threads):
-        worker = Thread(target=find_path, args=(i, in_queue))
-        worker.setDaemon(True)
-        worker.start()
-    print("Main Thread Waiting")
-    in_queue.join()
+    for i in disks:
+        find_path(i)
     fp = open(result_file, 'rb+')
-    for file_path in file_list:
-        fp.write(file_path.encode(encoding='UTF-8', errors='strict'))
+    for file_p in file_list:
+        fp.write(file_p.encode(encoding='UTF-8', errors='strict'))
         fp.write(b'\n')
     fp.close()
     time_end = time.time()

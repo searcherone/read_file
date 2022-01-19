@@ -20,13 +20,12 @@
 """
 # coding=utf-8
 import os  # 路径
-import fnmatch  # 后缀名的一个包
-import time
 import pathlib
+import time
+
 import pandas as pd
 from pdfminer import high_level
 from win32com import client as wc
-from win32com.client import Dispatch, DispatchEx
 
 
 def word2txt(filepath, savepath=''):

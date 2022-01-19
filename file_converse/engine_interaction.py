@@ -1,9 +1,8 @@
 # coding=utf-8
+import json
 import subprocess
 import time
-import json
-import find_file
-from collections import defaultdict
+
 start_time = time.time()
 engine_path = r'C:\Users\94417\Desktop\内容安全鉴别系统\个人隐私\engine.exe'
 # file_dic = find_file.find_path()

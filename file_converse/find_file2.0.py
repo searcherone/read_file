@@ -9,12 +9,13 @@
 """
 # coding=utf-8
 import os
+import pathlib
 import re
 import time
-import psutil
-import pathlib
-from threading import Thread
 from queue import Queue
+from threading import Thread
+
+import psutil
 
 """
 #print(os.popen("wmic volume get lable, name").read())
